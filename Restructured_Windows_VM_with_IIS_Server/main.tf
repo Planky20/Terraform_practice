@@ -32,8 +32,30 @@ resource "azurerm_network_interface" "webinterfaces" {
   }
 }
 
+resource "azurerm_network_interface" "appinterfaces" {
+  for_each            = var.app_environment.production.subnets["appsubnet01"].machines
+  name                = each.value.networkinterfacename
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.appgrp.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.app_network_subnets["appsubnet01"].id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.appip[each.key].id
+  }
+}
+
 resource "azurerm_public_ip" "webip" {
-  for_each = var.app_environment.production.subnets["websubnet01"].machines
+  for_each            = var.app_environment.production.subnets["websubnet01"].machines
+  name                = each.value.publicipaddressname
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.appgrp.name
+  allocation_method   = "Static"
+}
+
+resource "azurerm_public_ip" "appip" {
+  for_each            = var.app_environment.production.subnets["appsubnet01"].machines
   name                = each.value.publicipaddressname
   location            = local.resource_location
   resource_group_name = azurerm_resource_group.appgrp.name
@@ -90,14 +112,36 @@ resource "azurerm_windows_virtual_machine" "webvm" {
     sku       = "2022-Datacenter"
     version   = "latest"
   }
+}
 
+resource "azurerm_linux_virtual_machine" "appvm" {
+  for_each                        = var.app_environment.production.subnets["appsubnet01"].machines
+  name                            = each.key
+  resource_group_name             = azurerm_resource_group.appgrp.name
+  location                        = local.resource_location
+  size                            = "Standard_B1s"
+  admin_username                  = "linuxadmin"
+  admin_password                  = var.adminpassword
+  disable_password_authentication = false
+  custom_data                     = data.local_file.cloudinit.content_base64 # Ensure cloudinit file is base64 encoded
+  network_interface_ids = [
+    azurerm_network_interface.appinterfaces[each.key].id,
+  ]
 
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
+  }
 }
 
 data "local_file" "cloudinit" {
   filename = "cloudinit"
 }
 
-output "filecontents" {
-  value = data.local_file.cloudinit.content
-}
