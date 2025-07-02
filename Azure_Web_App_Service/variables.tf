@@ -11,3 +11,16 @@ variable "webapp_environment" {
     }
   ))
 }
+
+variable "resource_tags" {
+  type = map(object(
+    {
+      department = string
+      tier       = string
+    }
+  ))
+}
+
+variable "webapp_slot" {
+  type = list(string)
+}

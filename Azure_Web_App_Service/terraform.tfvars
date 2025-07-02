@@ -2,7 +2,7 @@ webapp_environment = {
   "production" = {
     serviceplan = {
       serviceplan133795 = {
-        sku     = "F1"
+        sku     = "S1" # Need to have S1 or higher for slots
         os_type = "Windows"
       }
     }
@@ -12,3 +12,12 @@ webapp_environment = {
     }
   }
 }
+
+resource_tags = {
+  "tags" = {
+    department = "Logistics"
+    tier       = "Tier2"
+  }
+}
+
+webapp_slot = ["webappvlad133795", "staging"]
