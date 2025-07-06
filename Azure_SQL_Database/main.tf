@@ -35,3 +35,10 @@ resource "azurerm_mssql_firewall_rule" "allowmyclient" {
   start_ip_address = "176.221.108.142"
   end_ip_address   = "176.221.108.142"
 }
+
+resource "null_resource" "database_setup" {
+  provisioner "local-exec" {
+    command = "sqlcmd -S ${azurerm_mssql_server.wlsqlserver["${var.app_setup[0]}"].fully_qualified_domain_name} -U ${azurerm_mssql_server.wlsqlserver["${var.app_setup[0]}"].administrator_login} -P ${azurerm_mssql_server.wlsqlserver["${var.app_setup[0]}"].administrator_login_password} -d ${var.app_setup[1]} -i 01.sql" # This is a utility that allows to execute SQL commands againts Microsoft SQL Server databases
+  }
+  depends_on = [azurerm_mssql_database.wlsqldb]
+}

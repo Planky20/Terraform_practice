@@ -16,3 +16,5 @@ dbapp_environment = {
     }
   }
 }
+
+app_setup = [ "sqlserverwl0607","appdb" ] # This is a list of applications to be set up, where each application is represented by its server name and database name.

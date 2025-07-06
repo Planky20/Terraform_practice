@@ -14,3 +14,7 @@ variable "dbapp_environment" {
     }
   ))
 }
+
+variable "app_setup" {
+  type = list(string)
+}
