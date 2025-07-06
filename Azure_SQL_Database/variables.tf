@@ -3,8 +3,12 @@ variable "dbapp_environment" {
     {
       server = map(object(
         {
-          dbname = string
-          sku    = string
+          databases = map(object(
+            {
+              sku      = string
+              sampledb = string # Sample database is a pre-built database with sample data that can be used for testing, development, or learning purposes
+            }
+          ))
         }
       ))
     }

@@ -16,13 +16,22 @@ resource "azurerm_mssql_server" "wlsqlserver" {
 
 
 resource "azurerm_mssql_database" "wlsqldb" {
-  for_each     = var.dbapp_environment.production.server
-  name         = each.value.dbname
-  server_id    = azurerm_mssql_server.wlsqlserver[each.key].id
-  collation    = "SQL_Latin1_General_CP1_CI_AS"
-  license_type = "LicenseIncluded"
-  max_size_gb  = 2
-  sku_name     = each.value.sku
+  for_each             = { for detail in local.database_details : detail.database_name => detail }
+  name                 = each.key
+  server_id            = azurerm_mssql_server.wlsqlserver["${each.value.server_name}"].id
+  collation            = "SQL_Latin1_General_CP1_CI_AS"
+  license_type         = "LicenseIncluded"
+  max_size_gb          = 2
+  sku_name             = each.value.database_sku
+  sample_name          = each.value.database_sampledb
   storage_account_type = "Local"
 
+}
+
+resource "azurerm_mssql_firewall_rule" "allowmyclient" {
+  for_each         = var.dbapp_environment.production.server
+  name             = "AllowClientIP"
+  server_id        = azurerm_mssql_server.wlsqlserver["${each.key}"].id
+  start_ip_address = "176.221.108.142"
+  end_ip_address   = "176.221.108.142"
 }
