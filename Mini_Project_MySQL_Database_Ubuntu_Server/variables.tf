@@ -14,12 +14,19 @@ variable "app_environment" {
           ))
         }
       ))
+      serviceplan = map(object(
+        {
+          sku     = string
+          os_type = string
+        }
+      ))
+      serviceapp = map(string)
     }
   ))
 }
 
 variable "adminpassword" {
-  type = string
+  type        = string
   description = "This is the admin password for the virtual machine"
-  sensitive = true
+  sensitive   = true
 }

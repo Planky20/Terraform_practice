@@ -13,6 +13,22 @@ resource "azurerm_subnet" "app_network_subnets" {
   address_prefixes     = [each.value.cidrblock]
 }
 
+resource "azurerm_subnet" "appsubnet01" {
+  name                 = "appsubnet01"
+  resource_group_name  = azurerm_resource_group.WLgroup.name
+  virtual_network_name = azurerm_virtual_network.app_network_WL.name
+  address_prefixes     = ["10.0.2.0/24"]
+
+  delegation { # This block is used to delegate the subnet to a specific service, in this case, the App Service
+    name = "subnet-delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+}
+
 resource "azurerm_network_security_group" "app_nsg" {
   name                = "app-nsg"
   location            = local.resource_location
