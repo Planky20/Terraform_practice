@@ -29,7 +29,7 @@ resource "azurerm_linux_virtual_machine" "dbvm" {
   admin_username                  = "linuxadmin"
   admin_password                  = var.adminpassword
   disable_password_authentication = false
-  custom_data                     = data.local_file.cloudinit.content_base64 # Ensure cloud-init file is base64 encoded
+# custom_data                     = data.local_file.cloudinit.content_base64
   network_interface_ids = [
     azurerm_network_interface.dbinterfaces[each.key].id,
   ]
@@ -47,6 +47,6 @@ resource "azurerm_linux_virtual_machine" "dbvm" {
   }
 }
 
-data "local_file" "cloudinit" { # Cloud-init configuration file with MySQL installation
-  filename = "cloudinit"
-}
+# data "local_file" "cloudinit" {
+#   filename = "cloudinit"
+# }
